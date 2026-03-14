@@ -1,1 +1,1 @@
-# bartechies
+# BarTechies- Metabolic Reset for Techies
