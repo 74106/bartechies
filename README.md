@@ -12,8 +12,6 @@ Instead of relying on intense workouts, the platform focuses on micro-movements,
 https://bartechies.netlify.app/
 
 
-Connect Wallet requires the MetaMask browser extension. If you don’t see it, install MetaMask and refresh the page.
-
 ## <p style="color:cyan;">Problem Statement</p>
 
 Modern work environments are increasingly sedentary, particularly in the tech industry. Long hours of sitting can lead to:
