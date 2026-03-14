@@ -18,6 +18,13 @@
           <a href="#how-it-works">How It Works</a>
           <a href="#tech">Tech</a>
         </div>
+        <div class="wallet-connect-wrap" id="wallet-connect-wrap">
+          <button class="btn btn-secondary wallet-btn" id="connect-wallet-btn" type="button" onclick="connectWallet()" title="Connect MetaMask">Connect Wallet</button>
+        </div>
+        <div class="wallet-connected" id="wallet-connected" style="display: none;">
+          <span class="wallet-address" id="wallet-address"></span>
+          <button class="btn btn-secondary wallet-disconnect" type="button" onclick="disconnectWallet()">Disconnect</button>
+        </div>
         <div class="theme-switcher">
           <button class="theme-btn" id="theme-toggle" title="Toggle theme">
             <span class="theme-icon">🌙</span>
@@ -217,13 +224,17 @@
             
             <input type="hidden" id="steps" value="0" />
           </div>
-          <button class="btn btn-primary" onclick="calculateNEAT()">Calculate NEAT Score</button>
+            <button class="btn btn-primary" onclick="calculateNEAT()">Calculate NEAT Score</button>
         </div>
         <div class="calc-result">
           <div class="score-display">
             <div class="score-label">Your NEAT Score</div>
             <div id="neat-score" class="score-value">--</div>
             <div id="neat-status" class="score-status"></div>
+            <div class="web3-sign-wrap">
+              <button class="btn btn-secondary" id="sign-neat-btn" type="button" onclick="signNEATScore()" disabled title="Sign your NEAT score (requires wallet)">Sign score on-chain</button>
+              <span class="web3-status" id="web3-status"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -334,6 +345,8 @@
     </div>
   </footer>
 
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" crossorigin="anonymous"></script>
   <script src="script.js"></script>
+  <script src="js/web3.js"></script>
 </body>
 </html>
