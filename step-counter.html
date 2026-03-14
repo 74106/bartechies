@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step Counter - Metabolic Reset for Techies</title>
+
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-elevated: rgba(255, 255, 255, 0.04);
+      --accent: #00e0ff;
+      --accent-soft: rgba(0, 224, 255, 0.18);
+      --accent-strong: #4dffb5;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --danger: #fb7185;
+      --radius-xl: 18px;
+      --radius-full: 999px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+      --shadow-inner: inset 0 0 0 1px rgba(148, 163, 184, 0.12);
+      --transition-fast: 160ms ease-out;
+      --transition-medium: 220ms ease-out;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 520px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #020617 0%, #020617 55%, #020617 100%);
+      border-radius: 26px;
+      padding: 20px 18px 18px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -120px;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18) 0, transparent 50%),
+        radial-gradient(circle at 100% 0, rgba(45, 212, 191, 0.15) 0, transparent 52%);
+      opacity: 0.7;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    h1 {
+      font-size: clamp(1.35rem, 4vw, 1.65rem);
+      letter-spacing: 0.02em;
+      font-weight: 650;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .chip {
+      border-radius: var(--radius-full);
+      padding: 6px 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, var(--accent-strong), var(--accent));
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.85);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .metric-main,
+    .metric {
+      border-radius: 18px;
+      padding: 13px 13px 12px;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), #020617);
+      box-shadow: var(--shadow-inner);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 72px;
+    }
+
+    .metric-main {
+      border-radius: 20px;
+      padding: 14px 14px 12px;
+      background: radial-gradient(circle at 0 0, rgba(8, 47, 73, 0.85), #020617);
+      border-color: rgba(56, 189, 248, 0.7);
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .metric-value {
+      font-variant-numeric: tabular-nums;
+      font-size: 1.7rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+
+    .metric-unit {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .metric-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+    }
+
+    .pill-strong {
+      border-color: rgba(45, 212, 191, 0.8);
+      color: var(--accent-strong);
+      background: linear-gradient(
+        120deg,
+        rgba(16, 185, 129, 0.18),
+        rgba(37, 99, 235, 0.12)
+      );
+    }
+
+    .sparkline {
+      position: relative;
+      height: 32px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.7), #020617);
+      overflow: hidden;
+    }
+
+    .sparkline-track {
+      position: absolute;
+      inset: 0;
+      opacity: 0.35;
+      background-image: linear-gradient(
+        to right,
+        rgba(148, 163, 184, 0.2) 0,
+        transparent 16%,
+        transparent 50%,
+        rgba(148, 163, 184, 0.2) 85%,
+        transparent 100%
+      );
+      background-size: 40px 100%;
+      animation: slide 10s linear infinite;
+    }
+
+    @keyframes slide {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-40px);
+      }
+    }
+
+    .sparkline-bar {
+      position: absolute;
+      inset: 0;
+      transform-origin: center bottom;
+      transform: scaleY(0);
+      background: linear-gradient(to top, rgba(56, 189, 248, 0.7), rgba(45, 212, 191, 0.98));
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.65);
+      transition: transform var(--transition-medium);
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 550;
+      border: 1px solid transparent;
+      background: #0f172a;
+      color: var(--text-main);
+      cursor: pointer;
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, #22c55e, #22d3ee);
+      color: #0b1120;
+      box-shadow: 0 14px 30px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 8px 18px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-secondary {
+      border-color: rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.85);
+    }
+
+    .btn[disabled] {
+      opacity: 0.45;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .status-line {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      align-items: baseline;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.68rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.4);
+    }
+
+    .status-dot--ok {
+      background: #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.5);
+    }
+
+    .status-text {
+      flex: 1;
+      text-align: right;
+      opacity: 0.9;
+    }
+
+    .status-text-strong {
+      color: var(--accent-strong);
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    .hint strong {
+      color: var(--accent-strong);
+      font-weight: 550;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px 14px 14px;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <section class="card" aria-label="Step counter">
+      <div class="card-inner">
+        <header>
+          <div class="title-block">
+            <h1>Micro-Walk Step Counter</h1>
+            <p class="subtitle">Real-time steps from your phone’s motion sensors.</p>
+          </div>
+          <span class="chip" id="motion-status-chip">
+            <span class="chip-dot" aria-hidden="true"></span>
+            Motion
+          </span>
+        </header>
+
+        <section class="metrics" aria-label="Live activity metrics">
+          <article class="metric-main" aria-label="Total steps">
+            <div class="metric-label">
+              <span>Steps</span>
+              <span class="metric-unit">session</span>
+            </div>
+            <div class="metric-value" id="step-count">0</div>
+            <div class="metric-sub">
+              <span>Last step</span>
+              <span class="pill" id="last-step-time">–</span>
+            </div>
+          </article>
+
+          <article class="metric" aria-label="Acceleration and threshold">
+            <div class="metric-label">
+              <span>Acceleration</span>
+              <span class="metric-unit">g (filtered)</span>
+            </div>
+            <div class="metric-value" id="magnitude-display">0.00</div>
+            <div class="metric-sub">
+              <span>Dynamic threshold</span>
+              <span class="pill pill-strong" id="threshold-display">–</span>
+            </div>
+          </article>
+        </section>
+
+        <div class="sparkline" aria-hidden="true">
+          <div class="sparkline-track"></div>
+          <div class="sparkline-bar" id="sparkline-bar"></div>
+        </div>
+
+        <div class="controls" aria-label="Step counter controls">
+          <button id="start-btn" class="btn btn-primary" type="button">
+            Start sensing
+          </button>
+          <button id="reset-btn" class="btn btn-secondary" type="button">
+            Reset
+          </button>
+        </div>
+
+        <div class="status-line">
+          <div class="status-badge">
+            <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+            <span id="status-label">Idle</span>
+          </div>
+          <span class="status-text" id="status-text">
+            Tap <span class="status-text-strong">Start sensing</span> and keep your phone in a pocket while walking.
+          </span>
+        </div>
+
+        <p class="hint">
+          Uses a smoothed accelerometer signal with a <strong>dynamic threshold</strong>, <strong>peak
+            detection</strong>, and <strong>step-frequency filtering</strong> (0.5–3&nbsp;Hz) to
+          reduce false counts from random movements.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const LPF_ALPHA = 0.2;
+
+    const MIN_STEP_INTERVAL_MS = 333;
+    const MAX_STEP_INTERVAL_MS = 2000;
+
+    const DYNAMIC_THRESHOLD_OFFSET = 0.7;
+
+    const AVG_ALPHA = 0.01;
+
+    let isRunning = false;
+    let stepCount = 0;
+    let lastStepTimestamp = 0;
+
+    let filteredMagnitude = 0;
+    let avgMagnitude = 0;
+
+    let lastSamples = [];
+
+    const startBtn = document.getElementById("start-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const stepCountEl = document.getElementById("step-count");
+    const lastStepTimeEl = document.getElementById("last-step-time");
+    const magnitudeEl = document.getElementById("magnitude-display");
+    const thresholdEl = document.getElementById("threshold-display");
+    const sparklineBar = document.getElementById("sparkline-bar");
+    const statusDot = document.getElementById("status-dot");
+    const statusLabel = document.getElementById("status-label");
+    const statusText = document.getElementById("status-text");
+    const motionStatusChip = document.getElementById("motion-status-chip");
+
+    let motionListenerAttached = false;
+
+    function requestIOSMotionPermissionIfNeeded() {
+      if (
+        typeof DeviceMotionEvent !== "undefined" &&
+        typeof DeviceMotionEvent.requestPermission === "function"
+      ) {
+        return DeviceMotionEvent.requestPermission().then((state) => {
+          if (state === "granted") {
+            setStatus("Ready", "Motion access granted. Start walking to see steps.", true);
+            updateMotionChip(true);
+            return true;
+          } else {
+            setStatus(
+              "Permission needed",
+              "Motion access was denied. Enable Motion & Fitness for your browser in iOS settings.",
+              false
+            );
+            updateMotionChip(false);
+            return false;
+          }
+        });
+      }
+
+      updateMotionChip(true);
+      return Promise.resolve(true);
+    }
+
+    function updateMotionChip(isActive) {
+      motionStatusChip.style.opacity = isActive ? "1" : "0.6";
+    }
+
+    function setStatus(label, text, ok) {
+      statusLabel.textContent = label;
+      statusText.textContent = text;
+      statusDot.classList.toggle("status-dot--ok", !!ok);
+    }
+
+    function formatStepTime(timestamp) {
+      if (!timestamp) return "–";
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+
+    function applyLowPassFilter(rawMagnitude) {
+      filteredMagnitude = LPF_ALPHA * rawMagnitude + (1 - LPF_ALPHA) * filteredMagnitude;
+      return filteredMagnitude;
+    }
+
+    function updateAverageMagnitude(current) {
+      if (avgMagnitude === 0) {
+        avgMagnitude = current;
+      } else {
+        avgMagnitude = AVG_ALPHA * current + (1 - AVG_ALPHA) * avgMagnitude;
+      }
+      return avgMagnitude;
+    }
+
+    function computeDynamicThreshold() {
+      const base = avgMagnitude || filteredMagnitude || 0;
+      const threshold = base + DYNAMIC_THRESHOLD_OFFSET;
+      return threshold;
+    }
+
+    function updateDiagnostics(magnitude, threshold) {
+      magnitudeEl.textContent = magnitude.toFixed(2);
+      thresholdEl.textContent = threshold ? threshold.toFixed(2) : "–";
+
+      const normalized = Math.max(0, Math.min(1, magnitude / (threshold || 3)));
+      sparklineBar.style.transform = "scaleY(" + (0.06 + normalized * 0.94) + ")";
+    }
+
+    function detectStepIfPeak() {
+      if (lastSamples.length < 3) return;
+      const [prev, peak, next] = lastSamples;
+      const now = peak.t;
+      const threshold = computeDynamicThreshold();
+
+      const isLocalMax = peak.value > prev.value && peak.value > next.value;
+      const aboveThreshold = peak.value > threshold;
+      if (!isLocalMax || !aboveThreshold) return;
+
+      const interval = now - lastStepTimestamp;
+
+      if (interval < MIN_STEP_INTERVAL_MS || interval > MAX_STEP_INTERVAL_MS) return;
+
+      stepCount += 1;
+      lastStepTimestamp = now;
+      stepCountEl.textContent = String(stepCount);
+      lastStepTimeEl.textContent = formatStepTime(now);
+    }
+
+    function handleDeviceMotion(event) {
+      if (!isRunning) return;
+
+      const accel = event.accelerationIncludingGravity || event.acceleration;
+      if (!accel) return;
+
+      const ax = accel.x || 0;
+      const ay = accel.y || 0;
+      const az = accel.z || 0;
+
+      const rawMagnitude = Math.sqrt(ax * ax + ay * ay + az * az);
+
+      const smoothed = applyLowPassFilter(rawMagnitude);
+
+      updateAverageMagnitude(smoothed);
+      const threshold = computeDynamicThreshold();
+
+      const now = performance.now();
+      lastSamples.push({ t: now, value: smoothed });
+      if (lastSamples.length > 3) {
+        lastSamples.shift();
+      }
+
+      detectStepIfPeak();
+
+      updateDiagnostics(smoothed, threshold);
+    }
+
+    function attachMotionListener() {
+      if (motionListenerAttached) return;
+      window.addEventListener("devicemotion", handleDeviceMotion);
+      motionListenerAttached = true;
+    }
+
+    function detachMotionListener() {
+      if (!motionListenerAttached) return;
+      window.removeEventListener("devicemotion", handleDeviceMotion);
+      motionListenerAttached = false;
+    }
+
+    function startSensing() {
+      if (!("DeviceMotionEvent" in window)) {
+        setStatus(
+          "Not supported",
+          "This device or browser does not expose the DeviceMotion API.",
+          false
+        );
+        updateMotionChip(false);
+        return;
+      }
+
+      requestIOSMotionPermissionIfNeeded().then((granted) => {
+        if (!granted) return;
+
+        isRunning = true;
+        attachMotionListener();
+
+        startBtn.textContent = "Pause";
+        setStatus(
+          "Listening",
+          "Walk naturally with your phone in a pocket or hand. Steps are filtered to 0.5–3 Hz.",
+          true
+        );
+      });
+    }
+
+    function pauseSensing() {
+      isRunning = false;
+      setStatus("Paused", "Motion processing paused. Tap Start to resume.", false);
+      startBtn.textContent = "Resume";
+    }
+
+    function resetSession() {
+      stepCount = 0;
+      lastStepTimestamp = 0;
+      filteredMagnitude = 0;
+      avgMagnitude = 0;
+      lastSamples = [];
+
+      stepCountEl.textContent = "0";
+      lastStepTimeEl.textContent = "–";
+      magnitudeEl.textContent = "0.00";
+      thresholdEl.textContent = "–";
+      sparklineBar.style.transform = "scaleY(0)";
+
+      if (!isRunning) {
+        setStatus("Idle", "Tap Start sensing and then begin walking.", false);
+      }
+    }
+
+
+    startBtn.addEventListener("click", () => {
+      if (!isRunning) {
+        startSensing();
+      } else {
+        pauseSensing();
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      resetSession();
+    });
+
+    if (window.innerWidth > 768 && !("DeviceMotionEvent" in window)) {
+      setStatus(
+        "Best on mobile",
+        "Open this page on a phone to use accelerometer-based step counting.",
+        false
+      );
+    } else {
+      setStatus(
+        "Idle",
+        "Tap Start sensing and walk with your phone held steadily.",
+        false
+      );
+    }
+  </script>
+</body>
+</html>
+
