@@ -11,6 +11,11 @@
     var connected = getEl('wallet-connected');
     if (wrap) wrap.style.display = 'flex';
     if (connected) connected.style.display = 'none';
+    if (!window.ethereum) {
+      showWalletHint(true, 'Install <a href="https://metamask.io/download/" target="_blank" rel="noopener">MetaMask</a> to connect');
+    } else {
+      showWalletHint(false);
+    }
   }
 
   function showConnected(addr) {
@@ -101,6 +106,18 @@
       });
   }
 
+  function showWalletHint(show, msg) {
+    var hint = getEl('wallet-hint');
+    if (!hint) return;
+    if (show && msg) {
+      hint.innerHTML = msg;
+      hint.style.display = 'inline';
+    } else {
+      hint.innerHTML = '';
+      hint.style.display = 'none';
+    }
+  }
+
   function init() {
     var connectBtn = getEl('connect-wallet-btn');
     var disconnectBtn = getEl('disconnect-wallet-btn');
@@ -118,7 +135,14 @@
     window.disconnectWallet = disconnectWallet;
     window.signNEATScore = signNEATScore;
 
+    if (!window.ethereum) {
+      showWalletHint(true, 'Install <a href="https://metamask.io/download/" target="_blank" rel="noopener">MetaMask</a> to connect');
+    } else if (typeof ethers === 'undefined') {
+      showWalletHint(true, 'Loading… refresh if Connect Wallet doesn\'t work');
+    }
+
     if (window.ethereum && typeof ethers !== 'undefined') {
+      showWalletHint(false);
       window.ethereum.request({ method: 'eth_accounts' })
         .then(function (accounts) {
           if (accounts.length) {
