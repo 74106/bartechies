@@ -18,14 +18,6 @@
           <a href="#how-it-works">How It Works</a>
           <a href="#tech">Tech</a>
         </div>
-        <div class="wallet-connect-wrap" id="wallet-connect-wrap">
-          <button class="btn btn-secondary wallet-btn" id="connect-wallet-btn" type="button" title="Connect MetaMask">Connect Wallet</button>
-          <span class="wallet-hint" id="wallet-hint"></span>
-        </div>
-        <div class="wallet-connected" id="wallet-connected" style="display: none;">
-          <span class="wallet-address" id="wallet-address"></span>
-          <button class="btn btn-secondary wallet-disconnect" id="disconnect-wallet-btn" type="button">Disconnect</button>
-        </div>
         <div class="theme-switcher">
           <button class="theme-btn" id="theme-toggle" title="Toggle theme">
             <span class="theme-icon">🌙</span>
@@ -232,10 +224,6 @@
             <div class="score-label">Your NEAT Score</div>
             <div id="neat-score" class="score-value">--</div>
             <div id="neat-status" class="score-status"></div>
-            <div class="web3-sign-wrap">
-              <button class="btn btn-secondary" id="sign-neat-btn" type="button" disabled title="Sign your NEAT score (requires wallet)">Sign score on-chain</button>
-              <span class="web3-status" id="web3-status"></span>
-            </div>
           </div>
         </div>
       </div>
@@ -346,8 +334,6 @@
     </div>
   </footer>
 
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" crossorigin="anonymous"></script>
   <script src="script.js"></script>
-  <script src="js/web3.js"></script>
 </body>
 </html>
