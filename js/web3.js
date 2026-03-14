@@ -118,6 +118,22 @@
     }
   }
 
+  function finishWalletInit() {
+    showWalletHint(false);
+    if (window.ethereum && typeof ethers !== 'undefined') {
+      window.ethereum.request({ method: 'eth_accounts' })
+        .then(function (accounts) {
+          if (accounts.length) {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            showConnected(accounts[0]);
+            updateSignButton();
+          }
+        })
+        .catch(function () {});
+    }
+  }
+
   function init() {
     var connectBtn = getEl('connect-wallet-btn');
     var disconnectBtn = getEl('disconnect-wallet-btn');
@@ -137,22 +153,17 @@
 
     if (!window.ethereum) {
       showWalletHint(true, 'Install <a href="https://metamask.io/download/" target="_blank" rel="noopener">MetaMask</a> to connect');
-    } else if (typeof ethers === 'undefined') {
-      showWalletHint(true, 'Loading… refresh if Connect Wallet doesn\'t work');
-    }
-
-    if (window.ethereum && typeof ethers !== 'undefined') {
-      showWalletHint(false);
-      window.ethereum.request({ method: 'eth_accounts' })
-        .then(function (accounts) {
-          if (accounts.length) {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            signer = provider.getSigner();
-            showConnected(accounts[0]);
-            updateSignButton();
-          }
-        })
-        .catch(function () {});
+    } else if (typeof ethers !== 'undefined') {
+      finishWalletInit();
+    } else {
+      var s = document.createElement('script');
+      s.src = 'https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js';
+      s.crossOrigin = 'anonymous';
+      s.onload = finishWalletInit;
+      s.onerror = function () {
+        showWalletHint(true, 'Web3 library didn\'t load. <a href="' + window.location.href + '">Refresh</a>');
+      };
+      document.head.appendChild(s);
     }
 
     var neatScoreEl = getEl('neat-score');
