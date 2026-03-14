@@ -10,6 +10,8 @@ Instead of relying on intense workouts, the platform focuses on micro-movements,
 
 **Live Demo:**
 https://bartechies.netlify.app/
+
+
 Connect Wallet requires the MetaMask browser extension. If you don’t see it, install MetaMask and refresh the page.
 
 ## <p style="color:cyan;">Problem Statement</p>
